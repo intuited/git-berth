@@ -1,0 +1,61 @@
+#!/bin/bash
+function git_berth_help { cat <<...k
+git_berth {create, list} ...
+
+Subcommands:
+
+    git_berth create HOST BERTH PROJECT
+      Creates a repo at HOST in the directory
+        git/BERTH/PROJECT.
+      BERTH can be a multi-level path.
+      Creates a corresponding remote named HOST in the local repo.
+
+    git_berth list HOST [BERTH]
+      With BERTH: lists projects in that berth on HOST.
+      Without BERTH: lists berths on HOST.
+
+git_berth assumes that the HOST has a directory named 'git'
+  which contains berths.
+
+HOSTs can be any string which can both
+  serve as a valid host parameter to \$(ssh)
+  and as the host component of a URL passed to \$(git remote add).
+...k
+}
+
+function git_berth_create {
+  [[ $3 ]] || { echo $'git_berth create requires HOST, BERTH, and PROJECT parameters.\n';
+                git_berth_help;
+                return 1; } >&2;
+  ssh "$1" "cd git/ \
+         && mkdir -p \"$2\" \
+         && cd \"$2\" \
+         && mkdir \"$3\" \
+         && cd \"$3\" \
+         && git init \
+         && git config receive.denyCurrentBranch ignore" \
+  && git remote add "$1" "$1:git/$2/$3" \
+  && git remote show "$1";
+}
+
+function git_berth_list {
+  [[ $1 ]] || { echo $'git_berth list requires a HOST parameter.\n';
+                git_berth_help;
+                return 1; } >&2;
+  dir="git/$2";
+  ssh "$1" "cd \"$dir\" && ls"
+}
+
+function route {
+  { ! [[ $1 ]] || [[ $1 =~ ^-.*h ]]; } && { git_berth_help; exit 0; }
+
+  case $1 in
+    create) shift; git_berth_create "$@";;
+    list)   shift; git_berth_list "$@";;
+    *)      { echo $'Invalid action: first parameter should be "create" or "list".\n';
+              git_berth_help;
+              return 1; } >&2;;
+  esac;
+}
+
+route "$@";
