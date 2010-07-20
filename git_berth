@@ -27,6 +27,10 @@ function git_berth_create {
   [[ $3 ]] || { echo $'git_berth create requires HOST, BERTH, and PROJECT parameters.\n';
                 git_berth_help;
                 return 1; } >&2;
+  if git remote | grep -q "$1"; then
+    { echo $'git_berth: There is already a git remote named "'"$1"$'".  Aborting.';
+      return 2; } >&2;
+  fi;
   ssh "$1" "cd git/ \
          && mkdir -p \"$2\" \
          && cd \"$2\" \
