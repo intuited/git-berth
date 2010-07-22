@@ -5,14 +5,14 @@ git_berth {create, list} ...
 Subcommands:
 
     git_berth create HOST BERTH PROJECT
-      Creates a repo at HOST in the directory
-        git/BERTH/PROJECT.
-      BERTH can be a multi-level path.
-      Creates a corresponding remote named HOST in the local repo.
+        Creates a repo at HOST in the directory
+          git/BERTH/PROJECT.
+        BERTH can be a multi-level path.
+        Creates a corresponding remote named HOST in the local repo.
 
     git_berth list HOST [BERTH]
-      With BERTH: lists projects in that berth on HOST.
-      Without BERTH: lists berths on HOST.
+        With BERTH: lists projects in that berth on HOST.
+        Without BERTH: lists berths on HOST.
 
 git_berth assumes that the HOST has a directory named 'git'
   which contains berths.
